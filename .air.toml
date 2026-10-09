@@ -1,0 +1,18 @@
+root = "."
+tmp_dir = "tmp"
+env_files = [".env", ".env.dev"]
+
+[build]
+cmd = "DEVMODE=1 make bin/omega-server"
+entrypoint = ["./bin/omega-server"]
+exclude_regex = ["_test\\.go"]
+
+[build.windows]
+entrypoint = ["bin\\omega-server.exe"]
+
+[log]
+time = true
+
+[screen]
+clear_on_rebuild = true
+keep_scroll = true

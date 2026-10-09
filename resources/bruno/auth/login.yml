@@ -1,0 +1,31 @@
+info:
+  name: login
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "identifier": "email@example.com",
+        "password": "lOl@$12121"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.body.ok) {
+          bru.setVar("AUTH_DATA", res.body.data);
+          bru.setVar("AUTH_LAST_REFRESH", Date.now());
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

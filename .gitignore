@@ -1,0 +1,10 @@
+/bin/
+/tmp/
+/.vs/
+/.vscode/
+/.direnv/
+*.log
+*.env
+*.env.*
+!.env.dev
+/assets/uploads/

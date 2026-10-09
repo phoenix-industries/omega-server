@@ -1,0 +1,31 @@
+info:
+  name: logout
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/auth/logout"
+  body:
+    type: json
+    data: |-
+      {
+        "refresh_token": "{{AUTH_DATA.refresh_token}}"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: ""
+      value: ""
+  scripts:
+    - type: after-response
+      code: |-
+        bru.deleteVar("AUTH_DATA");
+        bru.deleteVar("AUTH_LAST_REFRESH");
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

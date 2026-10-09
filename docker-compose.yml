@@ -1,0 +1,58 @@
+name: omega-server
+
+services:
+    postgres:
+        image: postgres:18-alpine
+        container_name: omega_postgres
+        restart: unless-stopped
+        hostname: postgres
+        env_file: ./.env
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - PGPASSWORD=${POSTGRES_PASSWORD}
+        ports:
+            - ${POSTGRES_PORT}:5432
+        networks:
+            - omega_network
+        volumes:
+            - postgres_data:/var/lib/postgresql
+        healthcheck:
+            test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 30s
+
+    server:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - PORT=${PORT}
+        container_name: omega_server
+        depends_on:
+            postgres:
+                condition: service_started
+        restart: unless-stopped
+        env_file: ./.env
+        environment:
+            - HOST=0.0.0.0
+            - PORT=${PORT}
+            - POSTGRES_HOST=postgres
+            - MEILI_HOST=meilisearch
+            - TUSD_HOST=tusd
+        ports:
+            - ${PORT}:${PORT}
+        networks:
+            - omega_network
+        volumes:
+            - uploads:/app/${APP_UPLOAD_DIR}
+
+networks:
+    omega_network: {}
+
+volumes:
+    uploads:
+    postgres_data:

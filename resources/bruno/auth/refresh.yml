@@ -1,0 +1,30 @@
+info:
+  name: refresh
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/auth/refresh"
+  body:
+    type: json
+    data: |-
+      {
+        "refresh_token": "{{AUTH_DATA.refresh_token}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.body.ok) {
+          bru.setVar("AUTH_DATA", res.body.data);
+          bru.setVar("AUTH_LAST_REFRESH", Date.now());
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

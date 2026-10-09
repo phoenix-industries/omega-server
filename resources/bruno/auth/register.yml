@@ -1,0 +1,35 @@
+info:
+  name: register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/auth/register"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "osama",
+        "email": "email@example.com",
+        "phone": "+201006822490",
+        "gender": "male",
+        "birthdate": "2004-06-09T00:00:00.00Z",
+        "password": "lOl@$12121"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.body.ok) {
+          bru.setVar("AUTH_DATA", res.body.data);
+          bru.setVar("AUTH_LAST_REFRESH", Date.now());
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

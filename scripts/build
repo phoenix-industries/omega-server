@@ -1,0 +1,56 @@
+#!/bin/sh
+
+set -eu
+
+ROOT="${ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo ".")}"
+MODULE="$(go list -m)"
+DEVMODE="${DEVMODE:-0}"
+SERVICE="omega-server"
+
+for arg in "$@"; do
+	case "$arg" in
+	-dev) DEVMODE=1 ;;
+	-*)
+		echo "$(basename "$0"): unkown option \"$arg\"" >&2
+		exit 1
+		;;
+	*)
+		[ ! -d "$ROOT/cmd/$arg" ] && echo "$(basename "$0"): service not found \"$arg\"" >&2 && exit 1
+		SERVICE="$arg"
+		;;
+	esac
+done
+
+src="$ROOT/cmd/$SERVICE"
+out="$ROOT/bin/$SERVICE"
+
+BUILDTAG="$(date +v%Y%m%d)-$(git describe --tags --always --dirty)"
+[ "$DEVMODE" = 1 ] && BUILDTAG="$BUILDTAG-dev"
+GOVERSION="$(go version | cut -d " " -f 3- | tr " " "-")"
+SYSTEMTAG="$(uname -srm | tr " " "-" | tr "[:upper:]" "[:lower:]")"
+gotags="CGO_ENABLED=0"
+
+echo "building $SERVICE on $SYSTEMTAG with $GOVERSION"
+echo "$gotags"
+
+# shellcheck disable=SC2046
+env $(echo "$gotags" | xargs) go build \
+	-trimpath \
+	-ldflags "-s -w -extldflags=-static
+	-X=$MODULE/internal/buildinfo.BuildTag=$BUILDTAG
+	-X=$MODULE/internal/buildinfo.GoVersion=$GOVERSION
+	-X=$MODULE/internal/buildinfo.SystemTag=$SYSTEMTAG" \
+	-o "$out" \
+	"$src"
+
+ec=$?
+[ $ec -eq 0 ] &&
+	echo "built successfully ($BUILDTAG)" ||
+	echo "$(basename "$0"): build failed" >&2
+
+[ "$DEVMODE" != 1 ] && {
+	command -v strip >/dev/null 2>&1 && strip --strip-all "$out" || true
+	command -v upx >/dev/null 2>&1 && upx -q "$out" || true
+}
+
+exit $ec
