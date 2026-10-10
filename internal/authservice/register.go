@@ -15,7 +15,7 @@ import (
 type registerData struct {
 	Name        string            `json:"name"`
 	Email       string            `json:"email"`
-	Phone       string            `json:"phone"`
+	Phone       *string           `json:"phone"`
 	Password    string            `json:"password"`
 	Gender      models.UserGender `json:"gender"`
 	Birthdate   time.Time         `json:"birthdate"`
@@ -58,10 +58,12 @@ func (s *Service) HandleRegister(w http.ResponseWriter, r *http.Request) *httput
 			return httputil.NewStatusError(nil, "user with this email already exists", http.StatusConflict)
 		}
 
-		if exists, err := models.UserExistsWithPhone(ctx, tx, user.Phone); err != nil {
-			return httputil.NewStatusError(err, "failed to get user by phone", http.StatusInternalServerError)
-		} else if exists {
-			return httputil.NewStatusError(nil, "user with this phone number already exists", http.StatusConflict)
+		if user.Phone != nil {
+			if exists, err := models.UserExistsWithPhone(ctx, tx, *user.Phone); err != nil {
+				return httputil.NewStatusError(err, "failed to get user by phone", http.StatusInternalServerError)
+			} else if exists {
+				return httputil.NewStatusError(nil, "user with this phone number already exists", http.StatusConflict)
+			}
 		}
 
 		userID, err := s.auth.GenerateID()

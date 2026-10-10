@@ -34,7 +34,7 @@ type User struct {
 	Model
 	Name        string     `db:"name" json:"name"`
 	Email       string     `db:"email" json:"email"`
-	Phone       string     `db:"phone" json:"phone"`
+	Phone       *string    `db:"phone" json:"phone"`
 	Role        auth.Role  `db:"role" json:"role"`
 	Password    string     `db:"password" json:"-"`
 	Gender      UserGender `db:"gender" json:"gender"`
@@ -52,8 +52,13 @@ func (u *User) Validate() error {
 	if u.Email == "" {
 		return errors.New("email is required")
 	}
-	if u.Phone == "" {
-		return errors.New("phone is required")
+	if u.Phone != nil {
+		if *u.Phone == "" {
+			return errors.New("phone is required")
+		}
+		if err := validate.PhoneNumber(*u.Phone); err != nil {
+			return err
+		}
 	}
 	if u.Role == "" {
 		return errors.New("role is required")
@@ -65,9 +70,6 @@ func (u *User) Validate() error {
 		return err
 	}
 	if err := validate.Email(u.Email); err != nil {
-		return err
-	}
-	if err := validate.PhoneNumber(u.Phone); err != nil {
 		return err
 	}
 	return nil
