@@ -52,10 +52,7 @@ func (u *User) Validate() error {
 	if u.Email == "" {
 		return errors.New("email is required")
 	}
-	if u.Phone != nil {
-		if *u.Phone == "" {
-			return errors.New("phone is required")
-		}
+	if u.Phone != nil && *u.Phone != "" {
 		if err := validate.PhoneNumber(*u.Phone); err != nil {
 			return err
 		}
