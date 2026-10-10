@@ -33,9 +33,9 @@ func (g UserGender) Validate() error {
 type User struct {
 	Model
 	Name        string     `db:"name" json:"name"`
-	Email       string     `db:"email" json:"email"`
-	Phone       *string    `db:"phone" json:"phone"`
 	Role        auth.Role  `db:"role" json:"role"`
+	Email       string     `db:"email" json:"email"`
+	Phone       *string    `db:"phone" json:"phone,omitempty"`
 	Password    string     `db:"password" json:"-"`
 	Gender      UserGender `db:"gender" json:"gender"`
 	PictureID   *string    `db:"picture_id" json:"picture_id"`

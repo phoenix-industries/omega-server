@@ -7,17 +7,18 @@ import (
 
 	"github.com/phoenix-industries/omega-server/pkg/auth"
 	"github.com/phoenix-industries/omega-server/pkg/database"
+	"github.com/phoenix-industries/omega-server/pkg/database/models"
 	"github.com/phoenix-industries/omega-server/pkg/kernel"
 )
 
 var _ kernel.Service = (*Service)(nil)
 
 type AuthResponse struct {
-	UserID       string `json:"user_id"`
-	TokenType    string `json:"token_type"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    int64  `json:"expires_at"`
+	TokenType    string       `json:"token_type"`
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	ExpiresAt    int64        `json:"expires_at"`
+	User         *models.User `json:"user,omitempty"`
 }
 
 type Service struct {

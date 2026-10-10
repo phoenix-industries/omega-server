@@ -89,7 +89,7 @@ func (s *Service) HandleLogin(w http.ResponseWriter, r *http.Request) *httputil.
 			return httputil.NewStatusError(err, "failed to generate jwt", http.StatusInternalServerError)
 		}
 
-		res.UserID = user.ID
+		res.User = user
 		res.TokenType = auth.TokenType
 		res.AccessToken = accessToken
 		res.RefreshToken = refreshToken
