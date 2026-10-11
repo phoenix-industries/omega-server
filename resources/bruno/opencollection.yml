@@ -27,7 +27,7 @@ request:
       value: http://{{HOST}}:{{PORT}}
       disabled: true
     - name: BASE_URL
-      value: https://osama.alwaysdata.net
+      value: https://boraiy.tail643eb3.ts.net
 bundled: false
 extensions:
   bruno:
