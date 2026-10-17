@@ -32,17 +32,18 @@ func (g UserGender) Validate() error {
 
 type User struct {
 	Model
-	Name        string     `db:"name" json:"name"`
-	Role        auth.Role  `db:"role" json:"role"`
-	Email       string     `db:"email" json:"email"`
-	Phone       *string    `db:"phone" json:"phone,omitempty"`
-	Password    string     `db:"password" json:"-"`
-	Gender      UserGender `db:"gender" json:"gender"`
-	PictureID   *string    `db:"picture_id" json:"picture_id"`
-	City        *string    `db:"city" json:"city,omitempty"`
-	Governorate *string    `db:"governorate" json:"governorate,omitempty"`
-	Address     *string    `db:"address" json:"address,omitempty"`
-	Birthdate   time.Time  `db:"birthdate" json:"birthdate"`
+	Name         string      `db:"name" json:"name"`
+	Role         auth.Role   `db:"role" json:"role"`
+	Email        string      `db:"email" json:"email"`
+	Phone        *string     `db:"phone" json:"phone,omitempty"`
+	Password     string      `db:"password" json:"-"`
+	IsSupervisor bool        `db:"is_supervisor" json:"is_supervisor"`
+	Gender       *UserGender `db:"gender" json:"gender"`
+	PictureID    *string     `db:"picture_id" json:"picture_id"`
+	City         *string     `db:"city" json:"city,omitempty"`
+	Governorate  *string     `db:"governorate" json:"governorate,omitempty"`
+	Address      *string     `db:"address" json:"address,omitempty"`
+	Birthdate    time.Time   `db:"birthdate" json:"birthdate"`
 }
 
 func (u *User) Validate() error {
@@ -63,8 +64,10 @@ func (u *User) Validate() error {
 	if u.Birthdate.IsZero() {
 		return errors.New("birthdate is required")
 	}
-	if err := u.Gender.Validate(); err != nil {
-		return err
+	if u.Gender != nil {
+		if err := u.Gender.Validate(); err != nil {
+			return err
+		}
 	}
 	if err := validate.Email(u.Email); err != nil {
 		return err

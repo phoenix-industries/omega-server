@@ -13,15 +13,16 @@ import (
 )
 
 type registerData struct {
-	Name        string            `json:"name"`
-	Email       string            `json:"email"`
-	Phone       *string           `json:"phone"`
-	Password    string            `json:"password"`
-	Gender      models.UserGender `json:"gender"`
-	Birthdate   time.Time         `json:"birthdate"`
-	City        *string           `json:"city"`
-	Governorate *string           `json:"governorate"`
-	Address     *string           `json:"address"`
+	Name         string             `json:"name"`
+	Email        string             `json:"email"`
+	Phone        *string            `json:"phone"`
+	Password     string             `json:"password"`
+	Gender       *models.UserGender `json:"gender"`
+	Birthdate    time.Time          `json:"birthdate"`
+	City         *string            `json:"city"`
+	Governorate  *string            `json:"governorate"`
+	Address      *string            `json:"address"`
+	IsSupervisor *bool              `json:"is_supervisor"`
 }
 
 func (s *Service) HandleRegister(w http.ResponseWriter, r *http.Request) *httputil.Response {
@@ -34,16 +35,22 @@ func (s *Service) HandleRegister(w http.ResponseWriter, r *http.Request) *httput
 		return httputil.NewResponseError(http.StatusBadRequest, err)
 	}
 
+	isSupervisor := false
+	if data.IsSupervisor != nil {
+		isSupervisor = *data.IsSupervisor
+	}
+
 	user := models.User{
-		Name:        data.Name,
-		Email:       data.Email,
-		Phone:       data.Phone,
-		Role:        auth.RoleMember,
-		Gender:      data.Gender,
-		Birthdate:   data.Birthdate,
-		City:        data.City,
-		Governorate: data.Governorate,
-		Address:     data.Address,
+		Name:         data.Name,
+		Email:        data.Email,
+		Phone:        data.Phone,
+		Role:         auth.RoleMember,
+		Gender:       data.Gender,
+		Birthdate:    data.Birthdate,
+		City:         data.City,
+		Governorate:  data.Governorate,
+		Address:      data.Address,
+		IsSupervisor: isSupervisor,
 	}
 	if err := user.Validate(); err != nil {
 		return httputil.NewStatusError(nil, err.Error(), http.StatusBadRequest).Response()
